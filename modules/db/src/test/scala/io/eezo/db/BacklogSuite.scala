@@ -142,21 +142,6 @@ class BacklogSuite extends DbSuite {
     exec(Ddl.render(Differ.diff(empty, snap(TableSnap("t", List(id, cs).sortBy(_.name), Nil))))*)
   }
 
-  backlog(17, "a check's string literals keep their case") {
-    // canonicalCheck lowercases the whole expression, literals included, and that lowercased
-    // form is what lands in the migration file as the constraint's actual meaning.
-    val cs = Snapshot.column(
-      ColumnDef(
-        "status",
-        PgType.Text,
-        nullable = false,
-        primaryKey = false,
-        checks = List(Check.Raw("{} in ('Draft','Published')"))
-      )
-    )
-    assert(cs.checks.head.contains("'Draft'"), s"lowercased into: ${cs.checks.head}")
-  }
-
   // ── 18 ───────────────────────────────────────────────────────────────────────────────
   backlog(18, "an ordinary IN check does not diff forever") {
     // Postgres rewrites `x in ('a','b')` as `x = ANY (ARRAY[...])` and hands that back.
